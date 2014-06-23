@@ -13,16 +13,8 @@ import com.xuggle.mediatool.MediaListenerAdapter
 import com.xuggle.mediatool.event.ICloseEvent
 import com.xuggle.mediatool.event.IVideoPictureEvent
 import com.xuggle.xuggler.IError
+import com.xuggle.xuggler.Utils
 
-/** Helper class which we THINK is correct, to make it less ugly to implement raw Producers from Xuggler API. */
-abstract class AbstractProducer[T] extends Producer[T] {
-  override def produceTo(c: Consumer[T]): Unit = {
-    getPublisher subscribe c.getSubscriber
-  }
-}
-
-
-case class Frame(image: BufferedImage)
 case class FFMpegError(raw: IError) extends Exception(raw.getDescription)
 
 /** Helper for dealing with FFMpeg data. */
@@ -57,8 +49,10 @@ private[video] class FFMpegFileReader(f: File, subscriber: Subscriber[Frame]) ex
       }
     }
     override def onVideoPicture(e: IVideoPictureEvent): Unit = { 
-      subscriber.onNext(Frame(e.getJavaData))
-      frameCount += 1
+      if(e.getMediaData.isComplete) {
+        subscriber.onNext(Frame(Utils.videoPictureToImage(e.getMediaData)))
+        frameCount += 1
+      }
     }
   })
   /** Actually drives reading the file. */
@@ -66,12 +60,17 @@ private[video] class FFMpegFileReader(f: File, subscriber: Subscriber[Frame]) ex
     val done = frameCount + elements
     // Close event should automatically occur.
     while(!closed && frameCount < done) {
-      reader.readPacket match {
+      try (reader.readPacket match {
         case null => // Ignore
         case error =>
           closed = true
           // TODO - Make sure close event hasn't gone out yet.
           subscriber.onError(FFMpegError(error))
+      }) catch {
+        // Failure reading
+        case e: Exception =>
+          closed = true
+          subscriber.onError(e)
       }
     }
   }
