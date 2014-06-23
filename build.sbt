@@ -9,3 +9,4 @@ libraryDependencies ++= Seq(
   "org.boofcv" % "xuggler" % "0.16"
 )
 
+resolvers += "xuggler-repo" at "http://xuggle.googlecode.com/svn/trunk/repo/share/java"
