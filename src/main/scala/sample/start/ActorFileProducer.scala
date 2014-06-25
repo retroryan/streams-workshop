@@ -10,7 +10,7 @@ import sample.utils.BasicActorSubscription
 
 /**
  * A produce which delegates the work to an actor worker.  The worker
- * manages the subscriptions
+ * manages the subscriptions.
  *
  * @param system
  */
@@ -42,6 +42,8 @@ object FileProducerWorker {
 
 /**
  * An Actor Worker which accepts subscription messages and manages the subscribers.
+ * This uses on Worker Actor per subscription request.
+ * Subscribers are stored in a map based on the Subscription Worker Actor
  */
 class FileProducerWorker extends Actor {
 
