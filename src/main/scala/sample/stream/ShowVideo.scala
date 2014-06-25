@@ -23,7 +23,7 @@ object ShowVideo {
     implicit val timeout = Timeout(5.seconds)
     var count = 0L
 
-    val fileProducer: Producer[Frame] = video.FFMpeg.readFile(new File(args(0)))
+    val fileProducer: Producer[Frame] = video.FFMpeg.readFile(new File(args(0)), system)
 
     val flow =
       Flow(fileProducer)

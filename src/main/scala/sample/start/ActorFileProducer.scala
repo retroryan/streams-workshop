@@ -14,7 +14,7 @@ import sample.utils.BasicActorSubscription
  *
  * @param system
  */
-class BasicActorProducer(system: ActorSystem) extends Producer[String] {
+case class BasicActorProducer(system: ActorSystem) extends Producer[String] {
 
   val fileProducerWorker = system.actorOf(FileProducerWorker.props())
 
@@ -74,7 +74,6 @@ class FileProducerWorker extends Actor {
       context.stop(self)
     }
   }
-
 
 }
 

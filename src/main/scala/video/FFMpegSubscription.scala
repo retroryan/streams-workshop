@@ -1,44 +1,33 @@
 package video
 
-import java.awt.image.BufferedImage
 import java.io.File
-import org.reactivestreams.spi.{
-  Publisher, Subscriber, Subscription
-}
-import org.reactivestreams.api.{
-  Producer, Consumer
-}
-import com.xuggle.mediatool.ToolFactory
-import com.xuggle.mediatool.MediaListenerAdapter
-import com.xuggle.mediatool.event.ICloseEvent
-import com.xuggle.mediatool.event.IVideoPictureEvent
-import com.xuggle.xuggler.IError
-import com.xuggle.xuggler.Utils
+import org.reactivestreams.spi.Subscriber
+import com.xuggle.mediatool.{MediaListenerAdapter, ToolFactory}
+import com.xuggle.mediatool.event.{IVideoPictureEvent, ICloseEvent}
+import com.xuggle.xuggler.{IError, Utils}
+import akka.actor.{Actor, Props}
+import sample.utils.BasicActorSubscription.{Cancel, RequestMore}
 
 case class FFMpegError(raw: IError) extends Exception(raw.getDescription)
 
-/** Helper for dealing with FFMpeg data. */
-object FFMpeg {  
-  /** Reads a given file and pushes its stream events out. 
-   *  Note: This will not prefetch any data, but only read when requested.  
-   */
-  def readFile(f: File): Producer[Frame] = new FFMpegFileProducer(f)
-}
+object FFMpegSubscriptionWorker {
+  def props(file: File, subscriber: Subscriber[Frame]): Props =
+    Props(new FFMpegFileReader(file, subscriber))
 
-/** An implementation of a producer that will use Xuggler to read FFMpeg files. */
-private[video] class FFMpegFileProducer(f: File) extends AbstractProducer[Frame] {
-  override object getPublisher extends Publisher[Frame] {
-    def subscribe(subscriber: Subscriber[Frame]): Unit =
-      subscriber onSubscribe (new FFMpegFileReader(f, subscriber))
-  }
 }
 
 /** A subscription which only reads more packets from the file when more elements are requested. */
-private[video] class FFMpegFileReader(f: File, subscriber: Subscriber[Frame]) extends Subscription {
+private[video] class FFMpegFileReader(file: File, subscriber: Subscriber[Frame]) extends Actor {
   // TODO - Ensure filename is legitimate on windows too.
-  private val reader = ToolFactory.makeReader(f.getAbsolutePath)
+  private val reader = ToolFactory.makeReader(file.getAbsolutePath)
   private var closed: Boolean = false
   private var frameCount: Long = 0L
+
+  override def receive: Receive = {
+    case RequestMore(elements) => requestMore(elements)
+    case Cancel => cancel()
+  }
+
   /** Register a listener that will forward all events down the Reactive Streams chain. */
   reader.addListener(new MediaListenerAdapter() {
     override def onClose(e: ICloseEvent): Unit = {
@@ -48,15 +37,16 @@ private[video] class FFMpegFileReader(f: File, subscriber: Subscriber[Frame]) ex
         subscriber.onComplete()
       }
     }
-    override def onVideoPicture(e: IVideoPictureEvent): Unit = { 
+    override def onVideoPicture(e: IVideoPictureEvent): Unit = {
       if(e.getMediaData.isComplete) {
         subscriber.onNext(Frame(Utils.videoPictureToImage(e.getMediaData)))
         frameCount += 1
       }
     }
   })
+
   /** Actually drives reading the file. */
-  override def requestMore(elements: Int): Unit = {
+  def requestMore(elements: Int): Unit = {
     val done = frameCount + elements
     // Close event should automatically occur.
     while(!closed && frameCount < done) {
@@ -74,9 +64,11 @@ private[video] class FFMpegFileReader(f: File, subscriber: Subscriber[Frame]) ex
       }
     }
   }
-  override def cancel(): Unit = {
+
+  def cancel(): Unit = {
     closed = true
     reader.close()
+    context.parent ! FFMpegProducerWorker.Finished
   }
 }
 
