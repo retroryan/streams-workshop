@@ -12,9 +12,17 @@ import scala.util.{Failure, Success, Try}
 
 object FFMpegAction {
 
-  // Does this abstract away the flow handling too much
-  // making it hard to understand how to manipulate flows?
-  // Maybe it would be better to just have the input of runFlow be the Producer instead of the flow?
+  /**
+   * Does this abstract away the flow handling too much
+   * making it hard to understand how to manipulate flows?
+   *
+   *
+   * Maybe it would be better to just have the input of runFlow be the Producer instead of the flow?
+   *
+   * @param args
+   * @param runFlow
+   * @return
+   */
   def action(args: Array[String])(runFlow:(Flow[Frame], FlowMaterializer) => Flow[Unit]): Unit = {
     implicit val system = ActorSystem("test")
     val settings = MaterializerSettings()
@@ -27,7 +35,22 @@ object FFMpegAction {
       .onComplete(materializer)(handleOnComplete)
 
     System.out.println()
+  }
 
+  /**
+   * ShowVideo consumes the stream and doesn't return a flow.
+   * Is there a better way to share with action?
+   *
+   * @param args
+   * @param runFlow
+   * @return
+   */
+  def noShutdownAction(args: Array[String])(runFlow:(Flow[Frame], FlowMaterializer) => Unit): Unit = {
+     action(args) {
+        (flow,materializer) =>
+          runFlow(flow,materializer)
+          flow.asInstanceOf[Flow[Unit]]
+      }
   }
 
   //shutdown the actor system when the flow completes

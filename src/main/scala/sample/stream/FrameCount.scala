@@ -6,7 +6,7 @@ object FrameCount {
 
   /**
    * Use:
-   * sbt 'runMain sample.start.FrameCount file.mp4'
+   * sbt 'runMain sample.stream.FrameCount file.mp4'
    *
    */
   def main(args: Array[String]): Unit = {

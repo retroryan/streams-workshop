@@ -7,6 +7,8 @@ import org.reactivestreams.api.Producer
 import java.io.{FileOutputStream, PrintWriter}
 import scala.util.{Failure, Success, Try}
 
+import scala.concurrent.duration._
+
 
 object FileFlowAction {
 
@@ -73,6 +75,7 @@ object FileFlowAction {
     runFlow(flow, materializer).onComplete(materializer)(handleOnComplete)
 
     System.out.println("Finished Action")
+    system.awaitTermination(30.seconds)
 
   }
 
