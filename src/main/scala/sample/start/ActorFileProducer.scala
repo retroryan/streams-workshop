@@ -8,8 +8,13 @@ import sample.utils.BasicActorSubscription.Cancel
 import sample.utils.BasicActorSubscription.RequestMore
 import sample.utils.BasicActorSubscription
 
-
-class BasicActorProducer(system: ActorSystem) extends Producer[String] {
+/**
+ * A produce which delegates the work to an actor worker.  The worker
+ * manages the subscriptions.
+ *
+ * @param system
+ */
+case class BasicActorProducer(system: ActorSystem) extends Producer[String] {
 
   val fileProducerWorker = system.actorOf(FileProducerWorker.props())
 
@@ -25,6 +30,7 @@ class BasicActorProducer(system: ActorSystem) extends Producer[String] {
 
 }
 
+
 object FileProducerWorker {
 
   case class Subscribe(subscriber: Subscriber[String])
@@ -34,6 +40,11 @@ object FileProducerWorker {
   def props(): Props = Props(new FileProducerWorker())
 }
 
+/**
+ * An Actor Worker which accepts subscription messages and manages the subscribers.
+ * This uses on Worker Actor per subscription request.
+ * Subscribers are stored in a map based on the Subscription Worker Actor
+ */
 class FileProducerWorker extends Actor {
 
   val source = Source.fromFile("data/kjvdat.txt", "utf-8")
@@ -63,7 +74,6 @@ class FileProducerWorker extends Actor {
       context.stop(self)
     }
   }
-
 
 }
 

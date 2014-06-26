@@ -5,7 +5,7 @@ import org.reactivestreams.spi.{Subscription, Subscriber, Publisher}
 import scala.io.Source
 
 
-class BasicFileProducer extends Producer[String] {
+case object BasicFileProducer extends Producer[String] {
 
   override def produceTo(c: Consumer[String]): Unit = {
     getPublisher.subscribe(c.getSubscriber)
