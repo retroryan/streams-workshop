@@ -106,7 +106,7 @@ class PlayerProcessor(system: ActorSystem, file: File) extends video.AbstractPro
         def onComplete(): Unit = self ! VideoComplete
         def onError(cause: Throwable): Unit = self ! VideoError(cause)
       }
-      video.FFMpeg.readFile(file).getPublisher.subscribe(videoStreamSubscriber)
+      video.FFMpeg.readFile(file, system).getPublisher.subscribe(videoStreamSubscriber)
     }
   }
 
@@ -136,5 +136,5 @@ class PlayerProcessor(system: ActorSystem, file: File) extends video.AbstractPro
   private case class RequestMore(s: Sub, e: Int)
   private case class Cancel(s: Sub)
 
-  private def openFile: Producer[Frame] = video.FFMpeg.readFile(file)
+  private def openFile: Producer[Frame] = video.FFMpeg.readFile(file, system)
 }
