@@ -8,20 +8,22 @@ import org.reactivestreams.spi.{
 import org.reactivestreams.api.{
   Producer, Consumer
 }
-import javax.swing.JComponent
+import javax.swing._
 import java.util.concurrent.atomic.AtomicReference
 import java.awt.Color
 import java.awt.Graphics
-import javax.swing.JFrame
 import java.awt.GridLayout
-import javax.swing.SwingUtilities
+import scala.Some
+import java.awt.event.{ActionListener, ActionEvent}
 
 
 /** A Swing component which will render frames to the screen as they are consumed. */
 class FrameDisplay extends JComponent with Consumer[Frame] {
+
   private var lastFrame: AtomicReference[Option[Frame]] = new AtomicReference(None)
   private var color = Color.BLACK
   private var frame = 0L
+
   object getSubscriber extends Subscriber[Frame] {
     private var subscription: Subscription = null
     // TODO - Maybe we do some of this on the UI thread?
@@ -43,6 +45,7 @@ class FrameDisplay extends JComponent with Consumer[Frame] {
         }
       })
     }
+
     def onComplete(): Unit = {
       lastFrame.set(None)
       FrameDisplay.this.repaint()
@@ -68,12 +71,42 @@ class FrameDisplay extends JComponent with Consumer[Frame] {
 
 object Display {
   def create(): Consumer[Frame] = {
+
+    val width = 640
+    val height = 480
+
+
     val jframe = new JFrame("Display Window")
     jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
     val display = new FrameDisplay()
     jframe.add(display)
-    jframe.setLayout(new GridLayout(1,1))
-    jframe.setSize(640, 480)
+
+    val buttonPanel = new JPanel()
+    val panelHeight: Int = (height * .01).toInt
+
+    val startBtn: JButton = new JButton("Start")
+    startBtn.addActionListener(new ActionListener {
+      override def actionPerformed(e: ActionEvent): Unit = ???
+    })
+    buttonPanel.add(startBtn)
+
+    val pauseBtn: JButton = new JButton("Pause")
+    pauseBtn.addActionListener(new ActionListener {
+      override def actionPerformed(e: ActionEvent): Unit = ???
+    })
+    buttonPanel.add(pauseBtn)
+
+    val stopBtn: JButton = new JButton("Stop")
+    stopBtn.addActionListener(new ActionListener {
+      override def actionPerformed(e: ActionEvent): Unit = ???
+    })
+    buttonPanel.add(stopBtn)
+
+    buttonPanel.setSize(width, panelHeight)
+    jframe.add(buttonPanel)
+
+    jframe.setLayout(new GridLayout(2,1))
+    jframe.setSize(width, height)
     jframe.setVisible(true)
     display
   }

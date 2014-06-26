@@ -18,7 +18,7 @@ object ShowVideo {
    *
    */
   def main(args: Array[String]): Unit = {
-    FFMpegAction.noShutdownAction(args) {
+    FFMpegAction.basicAction(args) {
       (flow, materializer) =>
         flow.toProducer(materializer)
           .produceTo(video.Display.create)

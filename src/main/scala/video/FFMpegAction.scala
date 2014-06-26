@@ -45,7 +45,7 @@ object FFMpegAction {
    * @param runFlow
    * @return
    */
-  def noShutdownAction(args: Array[String])(runFlow:(Flow[Frame], FlowMaterializer) => Unit): Unit = {
+  def basicAction(args: Array[String])(runFlow:(Flow[Frame], FlowMaterializer) => Unit): Unit = {
      action(args) {
         (flow,materializer) =>
           runFlow(flow,materializer)

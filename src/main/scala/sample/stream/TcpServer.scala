@@ -33,7 +33,7 @@ object TcpServer {
     val materializer = FlowMaterializer(settings)
     implicit val timeout = Timeout(5.seconds)
 
-    val serverFuture = (IO(StreamTcp) ? StreamTcp.Bind(serverAddress, settings = settings))
+    val serverFuture = (IO(StreamTcp) ? StreamTcp.Bind(localAddress = serverAddress, settings = settings))
 
     serverFuture.onSuccess {
       case serverBinding: StreamTcp.TcpServerBinding =>

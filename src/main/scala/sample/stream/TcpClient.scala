@@ -41,7 +41,7 @@ object TcpClient {
     val materializer = FlowMaterializer(settings)
     implicit val timeout = Timeout(5.seconds)
 
-    val clientFuture = (IO(StreamTcp) ? StreamTcp.Connect(serverAddress, settings = settings))
+    val clientFuture = (IO(StreamTcp) ? StreamTcp.Connect(remoteAddress = serverAddress, settings = settings))
     clientFuture.onSuccess {
       case clientBinding: StreamTcp.OutgoingTcpConnection =>
         val testInput = ('a' to 'z').map(ByteString(_))
