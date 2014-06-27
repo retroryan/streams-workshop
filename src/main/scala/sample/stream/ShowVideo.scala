@@ -4,6 +4,10 @@ import akka.stream.scaladsl.Flow
 import java.io.File
 import org.reactivestreams.api.Producer
 import video.{FlowAction, Frame}
+import org.reactivestreams.api.Consumer
+import akka.actor.ActorSystem
+import java.awt.event.WindowAdapter
+import java.awt.event.WindowEvent
 
 object ShowVideo {
 
@@ -13,15 +17,10 @@ object ShowVideo {
    *
    */
   def main(args: Array[String]): Unit = {
-    FlowAction.action {
-      (materializer, system) =>
-        val fileProducer: Producer[Frame] = video.FFMpeg.readFile(new File(args(0)), system)
-        val flow = Flow(fileProducer)
-
-        flow.toProducer(materializer)
-          .produceTo(video.Display.create)
-
-        flow
-    }
+    val system = ActorSystem()
+    val fileProducer: Producer[Frame] = video.FFMpeg.readFile(new File(args(0)), system)
+    val consumer: Consumer[Frame] = video.Display.create(system)
+    fileProducer.produceTo(consumer)
+    
   }
 }

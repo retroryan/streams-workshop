@@ -25,6 +25,9 @@ import java.awt.event.ActionEvent
 import java.awt.Dimension
 import javax.swing.JLabel
 import java.awt.Component
+import akka.actor.ActorSystem
+import java.awt.event.WindowAdapter
+import java.awt.event.WindowEvent
 
 sealed trait UIControl
 case object Play extends UIControl
@@ -154,26 +157,31 @@ class PlayerHolder(center: JComponent) extends JPanel with Producer[UIControl] {
 }
 
 object Display {
-  def create(): Consumer[Frame] = {
+  def create(system: ActorSystem): Consumer[Frame] = {
     val display = new FrameDisplay()
-    inFrame("Video Preview", display)
+    val frame = inFrame("Video Preview", display, system)
     display
   }
-  def createPlayer(): (Consumer[Frame], Producer[UIControl]) = {
+  def createPlayer(system: ActorSystem): (Consumer[Frame], Producer[UIControl]) = {
     val display = new FrameDisplay()
     val controller = new PlayerHolder(display)
-    inFrame("Video Player", controller)
+    inFrame("Video Player", controller, system)
     display -> controller
   }
 
-  private def inFrame[T](title: String, c: Component): Unit = {
+  private def inFrame[T](title: String, c: Component, system: ActorSystem): JFrame = {
     val jframe = new JFrame(title)
     jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
     val pane = jframe.getContentPane
     pane.setLayout(new GridLayout(1, 1))
     pane.add(c)
     jframe.setSize(640, 580)
-    //jframe.pack()	
     jframe.setVisible(true)
+    jframe.addWindowListener(new WindowAdapter() {
+      override def windowClosed(e: WindowEvent): Unit = {
+        system.shutdown()
+      }
+    });
+    jframe
   }
 }

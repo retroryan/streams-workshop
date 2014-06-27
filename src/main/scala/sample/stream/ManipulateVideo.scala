@@ -20,7 +20,7 @@ object ManipulateVideo {
         val fileProducer: Producer[Frame] = video.FFMpeg.readFile(new File(args(0)), system)
         val flow = Flow(fileProducer)
 
-        val videoConsumer: Consumer[Frame] = video.Display.create
+        val videoConsumer: Consumer[Frame] = video.Display.create(system)
 
         flow.map(frame => Frame(ConvertImage.addWaterMark(frame.image)))
           .map(frame => Frame(ConvertImage.invertImage(frame.image)))

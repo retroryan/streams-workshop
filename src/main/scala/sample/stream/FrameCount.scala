@@ -17,9 +17,10 @@ object FrameCount {
       (materializer, system) =>
         val fileProducer: Producer[Frame] = video.FFMpeg.readFile(new File(args(0)), system)
         var count = 0L
-        Flow(fileProducer).foreach { frame =>
-          count += 1
-          System.out.print(f"\rFRAME ${count}%05d")
+        Flow(fileProducer).fold(0) { (count, frame) =>
+          val nextCount = count + 1
+          System.out.print(f"\rFRAME ${nextCount}%05d")
+          nextCount
         }
     }
   }

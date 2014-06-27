@@ -21,18 +21,16 @@ object VideoPlayer {
 
   /**
    * Use parameters `server 0.0.0.0 6001` to start server listening on port 6001.
-   *
    */
   def main(args: Array[String]): Unit = {
     implicit val system = ActorSystem("test")
-    val settings = MaterializerSettings()
-    val materializer = FlowMaterializer(settings)
     implicit val timeout = Timeout(5.seconds)
-    var count = 0L
-    val (player, uiControls) = video.Display.createPlayer
-    val playerProcessor = new PlayerProcessor(system, new File(args(0)))
-    uiControls produceTo playerProcessor
-    playerProcessor produceTo player
+    val (player, uiControls) = video.Display.createPlayer(system)
+    
+    // EXERCISE - Show this to user in terms of flow, have diagrams
+    val playEngine = new PlayerProcessor(system, new File(args(0)))
+    uiControls produceTo playEngine
+    playEngine produceTo player
     ()
   }
 }
@@ -55,39 +53,51 @@ class PlayerProcessor(system: ActorSystem, file: File) extends video.AbstractPro
     }
     private def makeHandler(r: Receive): Receive = 
       r orElse generic
+      
+      
+    // Stoped state behavior
     val stopped: Receive = makeHandler {
       case video.Play =>
+        // EXERCISE
         context become playing
         startFile()
     }
+    // Paused State Behavior
     val paused: Receive = makeHandler {
       case video.Play =>
-        // Request more frames, and continue
+        // EXERCISE
         context become playing
-        requestMore(1)
+        requestMoreVideo(1)
       case video.Stop => stop()
-      case f: video.Frame =>
-      // We should fire the frame on, but we don't need to request more.
-      // POSSIBLY we should just buffer this for later...
-        fireFrame(f)
+      
+      // On frame event, fire to downstream consumers
+      case f: video.Frame => fireFrame(f)
     }
+    // Playing state behavior
     val playing: Receive = makeHandler {
       case video.Stop => stop()
+      // TODO - Hide this somehow, we don't want users to care about how we start streaming video
+      // that should be in a helper method (startVideoEvents/stopVideoEvents)
       case VideoSubscription(s) =>
         videoStream = Some(s)
         s.requestMore(1)
       case video.Pause =>
+        // EXERCISE
         context become paused
-      case f: video.Frame =>
-        fireFrame(f)
-      // TODO - Don't assume one subscriber...
+      // Received video from file, feed downstream.
+      case f: video.Frame => fireFrame(f)
+      // Downstream consumer needs more video
       case RequestMore(s, e) =>
-        requestMore(e)
+        // EXERCISE - Ensure backpressure goes upstream
+        requestMoreVideo(e)
     }
     override def receive = stopped
     
-    private def requestMore(e: Int): Unit = 
-      videoStream.foreach(_.requestMore(e))
+    
+    
+    // Helper methods, not for users to implement
+    private def requestMoreVideo(frames: Int): Unit = 
+      videoStream.foreach(_.requestMore(frames))
     private def fireFrame(f: Frame): Unit =
       for(s <- subscribers) {
         s.s.onNext(f)
@@ -136,6 +146,4 @@ class PlayerProcessor(system: ActorSystem, file: File) extends video.AbstractPro
   private case class Register(s: Sub)
   private case class RequestMore(s: Sub, e: Int)
   private case class Cancel(s: Sub)
-
-  private def openFile: Producer[Frame] = video.FFMpeg.readFile(file, system)
 }
