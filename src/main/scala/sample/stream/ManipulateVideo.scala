@@ -22,8 +22,8 @@ object ManipulateVideo {
 
         val videoConsumer: Consumer[Frame] = video.Display.create(system)
 
-        flow.map(frame => Frame(ConvertImage.addWaterMark(frame.image)))
-          .map(frame => Frame(ConvertImage.invertImage(frame.image)))
+        flow.map(frame => Frame(ConvertImage.addWaterMark(frame.image), frame.timeStamp, frame.timeUnit))
+          .map(frame => Frame(ConvertImage.invertImage(frame.image), frame.timeStamp, frame.timeUnit))
           .toProducer(materializer)
           .produceTo(videoConsumer)
 

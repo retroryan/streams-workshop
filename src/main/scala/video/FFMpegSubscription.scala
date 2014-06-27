@@ -39,7 +39,7 @@ private[video] class FFMpegFileReader(file: File, subscriber: Subscriber[Frame])
     }
     override def onVideoPicture(e: IVideoPictureEvent): Unit = {
       if(e.getMediaData.isComplete) {
-        subscriber.onNext(Frame(Utils.videoPictureToImage(e.getMediaData)))
+        subscriber.onNext(Frame(Utils.videoPictureToImage(e.getMediaData), e.getTimeStamp, e.getTimeUnit))
         frameCount += 1
       }
     }

@@ -6,15 +6,6 @@ import org.reactivestreams.api.Producer
 import akka.actor.{ActorSystem, Actor, Props, ActorRef}
 import sample.utils.BasicActorSubscription
 
-
-/** Helper for dealing with FFMpeg data. */
-object FFMpeg {
-  /** Reads a given file and pushes its stream events out. 
-    * Note: This will not prefetch any data, but only read when requested.
-    */
-  def readFile(file: File, system: ActorSystem): Producer[Frame] = new FFMpegFileProducer(file, system)
-}
-
 /** An implementation of a producer that will use Xuggler to read FFMpeg files. */
 private[video] class FFMpegFileProducer(file: File, system: ActorSystem) extends AbstractProducer[Frame] {
 

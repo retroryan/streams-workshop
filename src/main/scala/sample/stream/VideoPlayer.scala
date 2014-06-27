@@ -16,6 +16,7 @@ import org.reactivestreams.spi.Subscriber
 import akka.actor.Props
 import org.reactivestreams.spi.Subscription
 import org.reactivestreams.spi.Publisher
+import imageUtils.ConvertImage
 
 object VideoPlayer {
 
@@ -24,12 +25,18 @@ object VideoPlayer {
    */
   def main(args: Array[String]): Unit = {
     implicit val system = ActorSystem("test")
+    val settings = MaterializerSettings()
+    val materializer = FlowMaterializer(settings)
     implicit val timeout = Timeout(5.seconds)
     val (player, uiControls) = video.Display.createPlayer(system)
     
     // EXERCISE - Show this to user in terms of flow, have diagrams
     val playEngine = new PlayerProcessor(system, new File(args(0)))
     uiControls produceTo playEngine
+    
+    /*Flow(playEngine).map { frame =>
+      Frame(ConvertImage.addWaterMark(frame.image), frame.timeStamp, frame.timeUnit)
+    }.toProducer(materializer) produceTo player*/
     playEngine produceTo player
     ()
   }
