@@ -1,7 +1,10 @@
 package sample.stream
 
-import video.{FFMpegAction, Frame}
+import video.{FlowAction, Frame}
 import imageUtils.ConvertImage
+import org.reactivestreams.api.{Consumer, Producer}
+import java.io.File
+import akka.stream.scaladsl.Flow
 
 object ManipulateVideo {
 
@@ -11,12 +14,20 @@ object ManipulateVideo {
    *
    */
   def main(args: Array[String]): Unit = {
-    FFMpegAction.basicAction(args) {
-      (flow, materializer) =>
+
+    FlowAction.action {
+      (materializer, system) =>
+        val fileProducer: Producer[Frame] = video.FFMpeg.readFile(new File(args(0)), system)
+        val flow = Flow(fileProducer)
+
+        val videoConsumer: Consumer[Frame] = video.Display.create
+
         flow.map(frame => Frame(ConvertImage.addWaterMark(frame.image)))
           .map(frame => Frame(ConvertImage.invertImage(frame.image)))
           .toProducer(materializer)
-          .produceTo(video.Display.create)
+          .produceTo(videoConsumer)
+
+        flow
     }
   }
 }

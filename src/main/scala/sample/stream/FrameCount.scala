@@ -1,6 +1,9 @@
 package sample.stream
 
-import video.FFMpegAction
+import video.{Frame, FlowAction}
+import org.reactivestreams.api.Producer
+import java.io.File
+import akka.stream.scaladsl.Flow
 
 object FrameCount {
 
@@ -10,17 +13,15 @@ object FrameCount {
    *
    */
   def main(args: Array[String]): Unit = {
-
-    var count = 0L
-
-    FFMpegAction.action(args) {
-      (flow, materializer) =>
-        flow.foreach { frame =>
+    FlowAction.action {
+      (materializer, system) =>
+        val fileProducer: Producer[Frame] = video.FFMpeg.readFile(new File(args(0)), system)
+        var count = 0L
+        Flow(fileProducer).foreach { frame =>
           count += 1
           System.out.print(f"\rFRAME ${count}%05d")
         }
     }
-
   }
 
 

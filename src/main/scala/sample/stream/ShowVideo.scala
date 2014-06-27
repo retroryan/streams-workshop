@@ -1,14 +1,9 @@
 package sample.stream
 
-import scala.concurrent.duration._
-import akka.actor.ActorSystem
-import akka.stream.FlowMaterializer
-import akka.stream.MaterializerSettings
 import akka.stream.scaladsl.Flow
-import akka.util.Timeout
 import java.io.File
 import org.reactivestreams.api.Producer
-import video.{FFMpegAction, Frame}
+import video.{FlowAction, Frame}
 
 object ShowVideo {
 
@@ -18,10 +13,15 @@ object ShowVideo {
    *
    */
   def main(args: Array[String]): Unit = {
-    FFMpegAction.basicAction(args) {
-      (flow, materializer) =>
+    FlowAction.action {
+      (materializer, system) =>
+        val fileProducer: Producer[Frame] = video.FFMpeg.readFile(new File(args(0)), system)
+        val flow = Flow(fileProducer)
+
         flow.toProducer(materializer)
           .produceTo(video.Display.create)
+
+        flow
     }
   }
 }

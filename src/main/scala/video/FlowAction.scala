@@ -10,7 +10,7 @@ import java.io.File
 import akka.stream.scaladsl.Flow
 import scala.util.{Failure, Success, Try}
 
-object FFMpegAction {
+object FlowAction {
 
   /**
    * Does this abstract away the flow handling too much
@@ -19,38 +19,19 @@ object FFMpegAction {
    *
    * Maybe it would be better to just have the input of runFlow be the Producer instead of the flow?
    *
-   * @param args
    * @param runFlow
    * @return
    */
-  def action(args: Array[String])(runFlow:(Flow[Frame], FlowMaterializer) => Flow[Unit]): Unit = {
+  def action[T](runFlow:(FlowMaterializer, ActorSystem) => Flow[T]): Unit = {
     implicit val system = ActorSystem("test")
     val settings = MaterializerSettings()
     val materializer = FlowMaterializer(settings)
     implicit val timeout = Timeout(5.seconds)
-    val fileProducer: Producer[Frame] = video.FFMpeg.readFile(new File(args(0)), system)
 
-    val flow = Flow(fileProducer)
-    runFlow(flow, materializer)
+    runFlow(materializer, system)
       .onComplete(materializer)(handleOnComplete)
 
     System.out.println()
-  }
-
-  /**
-   * ShowVideo consumes the stream and doesn't return a flow.
-   * Is there a better way to share with action?
-   *
-   * @param args
-   * @param runFlow
-   * @return
-   */
-  def basicAction(args: Array[String])(runFlow:(Flow[Frame], FlowMaterializer) => Unit): Unit = {
-     action(args) {
-        (flow,materializer) =>
-          runFlow(flow,materializer)
-          flow.asInstanceOf[Flow[Unit]]
-      }
   }
 
   //shutdown the actor system when the flow completes

@@ -42,6 +42,7 @@ object VideoPlayer {
 // the play state.
 class PlayerProcessor(system: ActorSystem, file: File) extends video.AbstractProducer[Frame] with Processor[UIControl, Frame] {
   private val playerActor = system.actorOf(Props(new PlayerActor))
+
   private class PlayerActor extends Actor {
     private var subscribers: Set[Sub] = Set.empty
     private var videoStream: Option[Subscription] = None
