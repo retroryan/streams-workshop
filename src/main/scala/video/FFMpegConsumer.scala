@@ -9,9 +9,10 @@ import com.xuggle.mediatool.ToolFactory
 import com.xuggle.mediatool.IMediaWriter
 import java.util.concurrent.TimeUnit
 import com.xuggle.xuggler.IRational
+import akka.actor.ActorRefFactory
 
 /** An implementation of a producer that will use Xuggler to read FFMpeg files. */
-private[video] class FFMpegFileConsumer(file: File, system: ActorSystem, width: Int, height: Int, frameRate: IRational = IRational.make(3, 1)) extends Consumer[Frame] {
+private[video] class FFMpegFileConsumer(file: File, system: ActorRefFactory, width: Int, height: Int, frameRate: IRational = IRational.make(3, 1)) extends Consumer[Frame] {
   import FFMpegConsumerWorker._
   val worker = system.actorOf(props(file, width, height, frameRate))
   override object getSubscriber extends Subscriber[Frame] {

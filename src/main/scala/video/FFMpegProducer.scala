@@ -3,11 +3,11 @@ package video
 import java.io.File
 import org.reactivestreams.spi.{Publisher, Subscriber}
 import org.reactivestreams.api.Producer
-import akka.actor.{ActorSystem, Actor, Props, ActorRef}
+import akka.actor.{ActorSystem, ActorRefFactory, Actor, Props, ActorRef}
 import sample.utils.BasicActorSubscription
 
 /** An implementation of a producer that will use Xuggler to read FFMpeg files. */
-private[video] class FFMpegFileProducer(file: File, system: ActorSystem) extends AbstractProducer[Frame] {
+private[video] class FFMpegFileProducer(file: File, system: ActorRefFactory) extends AbstractProducer[Frame] {
 
   val ffMpegProducerWorker = system.actorOf(FFMpegProducerWorker.props(file))
 
