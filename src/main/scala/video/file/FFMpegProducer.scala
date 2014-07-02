@@ -12,6 +12,7 @@ import com.xuggle.xuggler.IError
 import org.reactivestreams.api.Producer
 import akka.actor.ActorRefFactory
 import akka.actor.Props
+import akka.stream.scaladsl.Flow
 
 
 case class FFMpegError(raw: IError) extends Exception(raw.getDescription)
@@ -67,6 +68,7 @@ private[video] class FFMpegProducer(file: File) extends ActorProducer[Frame] {
   }
 }
 object FFMpegProducer {
+  
   def apply(factory: ActorRefFactory, file: File): Producer[Frame] = 
     ActorProducer(factory.actorOf(Props(new FFMpegProducer(file))))
 }

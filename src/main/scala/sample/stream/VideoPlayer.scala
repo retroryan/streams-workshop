@@ -44,7 +44,7 @@ object VideoPlayer {
     uiControls produceTo playEngineConsumer
     Flow(playEngineProducer).map { frame =>
       Frame(ConvertImage.addWaterMark(frame.image), frame.timeStamp, frame.timeUnit)
-    }.toProducer(materializer) produceTo player
+    }.produceTo(materializer, player)
     //playEngineProducer produceTo player
 
     ()
@@ -69,10 +69,12 @@ class PlayerProcessorActor(file: File) extends ActorProducer[Frame] with ActorCo
 	        // Update state and kick off the stream
     	    if(currentPlayer.isEmpty) kickOffFileProducer()
     	    isPaused = false
+    	    // TODO - If we have pause cache, we should fire those events.
     	    requestMorePlayer()
     	  case Pause =>
     	    isPaused = true
     	  case Stop =>
+    	    isPaused = false
     	    currentPlayer.foreach(_ ! Stop)
     	    currentPlayer = None
     	}
@@ -83,7 +85,7 @@ class PlayerProcessorActor(file: File) extends ActorProducer[Frame] with ActorCo
       kickOffFileProducer()
       requestMorePlayer()
     case f: Frame => 
-      // TODO - Cache if we have no pending element requests.
+      // TODO - Cache if we are paused.
       onNext(f)
       pendingElements -= 1
   }
