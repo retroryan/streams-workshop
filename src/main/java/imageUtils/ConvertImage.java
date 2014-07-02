@@ -27,7 +27,7 @@ public class ConvertImage {
         Graphics2D g2d = inputImage.createGraphics();
 
         //Create an alpha composite of 50%
-        AlphaComposite alpha = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f);
+        AlphaComposite alpha = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.8f);
         g2d.setComposite(alpha);
 
         g2d.setColor(Color.white);
@@ -42,8 +42,8 @@ public class ConvertImage {
         Rectangle2D rect = fontMetrics.getStringBounds(watermark, g2d);
 
         g2d.drawString(watermark,
-                (inputImage.getWidth() - (int) rect.getWidth()) / 2,
-                (inputImage.getHeight() - (int) rect.getHeight()) / 2);
+                inputImage.getWidth() - ((int) rect.getWidth() + 5),
+                inputImage.getHeight() - ((int) rect.getHeight() + 5));
 
         //Free graphic resources
         g2d.dispose();

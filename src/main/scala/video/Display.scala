@@ -1,38 +1,14 @@
 package video
 
-import java.awt.image.BufferedImage
-import org.reactivestreams.spi.{
-  Publisher,
-  Subscriber,
-  Subscription
-}
 import org.reactivestreams.api.{
   Producer,
   Consumer
 }
-import javax.swing.JComponent
-import java.util.concurrent.atomic.AtomicReference
-import java.awt.Color
-import java.awt.Graphics
-import javax.swing.JFrame
-import java.awt.GridLayout
-import javax.swing.SwingUtilities
-import javax.swing.JPanel
-import java.awt.BorderLayout
-import javax.swing.JButton
-import java.awt.event.ActionListener
-import java.awt.event.ActionEvent
-import java.awt.Dimension
-import javax.swing.JLabel
-import java.awt.Component
+import javax.swing.{JComponent, JPanel, JFrame}
 import akka.actor.ActorSystem
-import java.awt.event.WindowAdapter
-import java.awt.event.WindowEvent
+import java.awt.{BorderLayout, Component, GridLayout, Dimension }
+import java.awt.event.{WindowAdapter, WindowEvent}
 
-import akka.stream.actor.{
-  ActorConsumer, 
-  ActorProducer
-}
 
 sealed trait UIControl
 case object Play extends UIControl
