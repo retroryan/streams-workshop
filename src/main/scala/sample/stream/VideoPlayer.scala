@@ -34,10 +34,10 @@ object VideoPlayer {
     val playEngine = new PlayerProcessor(system, new File(args(0)))
     uiControls produceTo playEngine
     
-    /*Flow(playEngine).map { frame =>
+    Flow(playEngine).map { frame =>
       Frame(ConvertImage.addWaterMark(frame.image), frame.timeStamp, frame.timeUnit)
-    }.toProducer(materializer) produceTo player*/
-    playEngine produceTo player
+    }.toProducer(materializer) produceTo player
+    //playEngine produceTo player
     ()
   }
 }
@@ -51,6 +51,7 @@ class PlayerProcessor(system: ActorSystem, file: File) extends video.AbstractPro
   private class PlayerActor extends Actor {
     private var subscribers: Set[Sub] = Set.empty
     private var videoStream: Option[Subscription] = None
+    private var queuedRequestCount: Int = 0
     val generic: Receive = {
       case Register(sub) =>
         subscribers += sub
@@ -68,17 +69,20 @@ class PlayerProcessor(system: ActorSystem, file: File) extends video.AbstractPro
         // EXERCISE
         context become playing
         startFile()
+      case RequestMore(s,e) => queuedRequestCount += e
     }
     // Paused State Behavior
     val paused: Receive = makeHandler {
       case video.Play =>
         // EXERCISE
         context become playing
-        requestMoreVideo(1)
+        requestMoreVideo(queuedRequestCount)
       case video.Stop => stop()
-      
+      case RequestMore(s, e) => queuedRequestCount += e
       // On frame event, fire to downstream consumers
-      case f: video.Frame => fireFrame(f)
+      case f: video.Frame =>
+        queuedRequestCount -= 1
+        fireFrame(f)
     }
     // Playing state behavior
     val playing: Receive = makeHandler {
@@ -87,14 +91,17 @@ class PlayerProcessor(system: ActorSystem, file: File) extends video.AbstractPro
       // that should be in a helper method (startVideoEvents/stopVideoEvents)
       case VideoSubscription(s) =>
         videoStream = Some(s)
-        s.requestMore(1)
+        requestMoreVideo(queuedRequestCount)
       case video.Pause =>
         // EXERCISE
         context become paused
       // Received video from file, feed downstream.
-      case f: video.Frame => fireFrame(f)
+      case f: video.Frame => 
+        queuedRequestCount -= 1
+        fireFrame(f)
       // Downstream consumer needs more video
       case RequestMore(s, e) =>
+        queuedRequestCount += e
         // EXERCISE - Ensure backpressure goes upstream
         requestMoreVideo(e)
     }
