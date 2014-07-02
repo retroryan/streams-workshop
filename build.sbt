@@ -9,7 +9,8 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-testkit" % "2.3.3",
   "org.boofcv" % "xuggler" % "0.17",
   "junit" % "junit" % "4.11",
-  "org.scalatest" %% "scalatest" % "2.2.0"
+  "org.scalatest" %% "scalatest" % "2.2.0",
+  "com.github.sarxos" % "webcam-capture" % "0.3.9"
 )
 
 resolvers += "xuggler-repo" at "http://xuggle.googlecode.com/svn/trunk/repo/share/java"
