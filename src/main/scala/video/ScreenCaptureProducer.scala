@@ -4,6 +4,12 @@ package video
 import org.reactivestreams.spi.{Publisher, Subscriber}
 import akka.actor.{ActorSystem, Actor, Props, ActorRef}
 import sample.utils.BasicActorSubscription
+import org.reactivestreams.api.Producer
+import org.reactivestreams.api.Consumer
+
+trait AbstractProducer[T] extends Producer[T] {
+  override def produceTo(c: Consumer[T]): Unit = getPublisher subscribe c.getSubscriber
+}
 
 /** An implementation of a producer that that can grab the screen. It will generate a stream of the captured video later.
   *
