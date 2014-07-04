@@ -61,7 +61,6 @@ class PlayerProcessorActor(file: File) extends ActorProducer[Frame] with ActorCo
   override val requestStrategy = ActorConsumer.OneByOneRequestStrategy
   private var currentPlayer: Option[ActorRef] = None
   private var isPaused: Boolean = false
-  private var pendingElements = 0
   override def receive: Receive = {
     case ActorConsumer.OnNext(control: UIControl) =>
     	control match {
@@ -79,15 +78,26 @@ class PlayerProcessorActor(file: File) extends ActorProducer[Frame] with ActorCo
     	    currentPlayer = None
     	}
     case ActorProducer.Request(elements) => 
-      pendingElements += elements
-      if(!isPaused) requestMorePlayer()
+      // TODO - flush buffer.
+      if(!isPaused) {
+        if(tryEmptyBuffer) requestMorePlayer()
+      }
     case PlayerDone =>
       kickOffFileProducer()
       requestMorePlayer()
     case f: Frame => 
       // TODO - Cache if we are paused.
-      onNext(f)
-      pendingElements -= 1
+      if(totalDemand > 0) onNext(f)
+      else buffer(f)
+  }
+  
+  // Buffering (unbounded) if we get overloaded.
+  private val buffer = collection.mutable.ArrayBuffer.empty[Frame]
+  private def buffer(f: Frame): Unit = buffer.append(f)
+  private def tryEmptyBuffer(): Boolean = {
+    while(!buffer.isEmpty && totalDemand > 0)
+      onNext(buffer.remove(0))
+    buffer.isEmpty
   }
   private def kickOffFileProducer(): Unit = {
     val producer = video.FFMpeg.readFile(file, context)
@@ -96,8 +106,8 @@ class PlayerProcessorActor(file: File) extends ActorProducer[Frame] with ActorCo
     producer produceTo ActorConsumer(consumerRef)
   }
   private def requestMorePlayer(): Unit = {
-    if(pendingElements > 0) currentPlayer match {
-      case Some(player) => player ! PlayerRequestMore(pendingElements)
+    if(totalDemand > 0) currentPlayer match {
+      case Some(player) => player ! PlayerRequestMore(totalDemand)
       case None => ()
     }
   }

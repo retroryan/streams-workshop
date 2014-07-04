@@ -27,10 +27,9 @@ private[video] class FFMpegProducer(file: File) extends ActorProducer[Frame] {
   /** Register a listener that will forward all events down the Reactive Streams chain. */
   reader.addListener(new MediaListenerAdapter() {
     override def onClose(e: ICloseEvent): Unit = {
-      // TODO - No way to tell if we had errors here...
       if(!closed) {
+        // Just mark that the loop should exit.
         closed = true
-        onComplete()
       }
     }
     override def onVideoPicture(e: IVideoPictureEvent): Unit = {
@@ -55,11 +54,12 @@ private[video] class FFMpegProducer(file: File) extends ActorProducer[Frame] {
       try (reader.readPacket match {
         case null => // Ignore
         case error =>
+          // Ensure we're closed.
           closed = true
-          // TODO - Make sure close event hasn't gone out yet.
-          onError(FFMpegError(error))
+          if(error.getType == IError.Type.ERROR_EOF) onComplete()
+          else onError(FFMpegError(error))
       }) catch {
-        // Failure reading
+        // Some sort of fatal read error.
         case e: Exception =>
           closed = true
           onError(e)
