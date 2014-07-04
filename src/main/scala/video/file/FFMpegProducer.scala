@@ -26,12 +26,6 @@ private[video] class FFMpegProducer(file: File) extends ActorProducer[Frame] {
   private val reader = ToolFactory.makeReader(file.getAbsolutePath)
   /** Register a listener that will forward all events down the Reactive Streams chain. */
   reader.addListener(new MediaListenerAdapter() {
-    override def onClose(e: ICloseEvent): Unit = {
-      if(!closed) {
-        // Just mark that the loop should exit.
-        closed = true
-      }
-    }
     override def onVideoPicture(e: IVideoPictureEvent): Unit = {
       if(e.getMediaData.isComplete) {
         onNext(Frame(Utils.videoPictureToImage(e.getMediaData), e.getTimeStamp, e.getTimeUnit))
