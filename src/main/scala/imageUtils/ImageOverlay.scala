@@ -12,10 +12,10 @@ class ImageOverlay(imageFile: File) {
   def overlayOnto(buf: BufferedImage): Unit = {
     val g: Graphics2D = buf.createGraphics
     //Create an alpha composite of 50%
-    //val alpha: AlphaComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.8f)
+    // TODO - this is BAD in some way, we'd like a raw overlay function, but
+    // didn't have time to research all of alpha composite API.
     val alpha = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f)
     g.setComposite(alpha)
-    //g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON)
     g.drawImage(img, 0, 0, buf.getWidth, buf.getHeight, 0, 0, img.getWidth, img.getHeight, bg, null)
     //Free graphic resources
     g.dispose
