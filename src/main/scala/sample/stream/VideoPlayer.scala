@@ -16,7 +16,7 @@ import org.reactivestreams.spi.Subscriber
 import akka.actor.Props
 import org.reactivestreams.spi.Subscription
 import org.reactivestreams.spi.Publisher
-import imageUtils.ConvertImage
+import imageUtils.{ImageOverlay, ConvertImage}
 import akka.stream.actor.ActorProducer
 import akka.stream.actor.ActorConsumer
 import video.Play
@@ -34,6 +34,9 @@ object VideoPlayer {
     val settings = MaterializerSettings()
     val materializer = FlowMaterializer(settings)
     implicit val timeout = Timeout(5.seconds)
+    val overlay = new ImageOverlay(new File("crosshairs-overlay.jpg"))
+
+
     val (player, uiControls) = video.Display.createPlayer(system)
     
     // EXERCISE - Show this to user in terms of flow, have diagrams
@@ -43,6 +46,11 @@ object VideoPlayer {
     val playEngineProducer = ActorProducer[Frame](playEngineActor)
     uiControls produceTo playEngineConsumer
     Flow(playEngineProducer).map { frame =>
+      // TODO - We use a mutable write here because we're optimising memory usage in
+      // this flow.
+      overlay.overlayOnto((frame.image))
+      frame
+    }.map { frame =>
       Frame(ConvertImage.addWaterMark(frame.image), frame.timeStamp, frame.timeUnit)
     }.produceTo(materializer, player)
     //playEngineProducer produceTo player
