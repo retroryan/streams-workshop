@@ -1,6 +1,7 @@
 package video
 package swing
 
+import java.util.concurrent.TimeUnit
 import javax.swing.JComponent
 import akka.stream.actor.ActorConsumer
 import java.awt.Color
@@ -38,8 +39,33 @@ private[swing] class VideoPanel extends JComponent {
 }
 private[swing] class VideoPanelActor(panel: VideoPanel) extends ActorConsumer {
   override val requestStrategy = ActorConsumer.OneByOneRequestStrategy
+  private var last = System.nanoTime()
+  private var lastTick = 0L
   def receive: Receive = {
-    case ActorConsumer.OnNext(frame: Frame) => panel.updateFrame(frame)
+    case ActorConsumer.OnNext(frame: Frame) =>
+      // Here is some gunk to slow down rendering to the appropriate frame rate.
+      concurrent.blocking {
+        val tick = TimeUnit.NANOSECONDS.convert(frame.timeStamp, frame.timeUnit)
+        val time = System.nanoTime()
+        // Ensure we aren't just starting off.
+        if((lastTick > 0L) && (lastTick < tick)) {
+          val diff = tick - lastTick
+          val endWait = last + diff
+          // TODO - we busy spin for now, forcing the thread somewhere else
+          // Maybe not the best way to do this.
+          while(System.nanoTime < endWait) {
+            val remaining = endWait - System.nanoTime
+            // TODO - we should measure the cost of each of these strategies instead of making it up on the fly.
+            val remainingMS = remaining / 1000000
+            if(remainingMS > 2) Thread.sleep(remainingMS, (remaining % 1000000).toInt)
+            else if (remaining > 1000) Thread.`yield`()
+            else ()  // Busy loop
+          }
+        }
+        lastTick = tick
+        last = System.nanoTime
+      }
+      panel.updateFrame(frame)
     case ActorConsumer.OnComplete =>
       // TODO - blank out the screen
     case ActorConsumer.OnError(err) =>
