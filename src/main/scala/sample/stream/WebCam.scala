@@ -14,7 +14,7 @@ object Webcam {
     implicit val system = ActorSystem()
     implicit val materializer = FlowMaterializer(MaterializerSettings())
     val overlay = new ImageOverlay(new File("crosshairs-overlay.jpg"))
-    val webcam = video.WebCam.default(system)
+    val webcam = video.WebCam.cameraStreams(system).last
     val render = video.Display.create(system)
     Flow(webcam).map { frame =>
       overlay.overlayOnto(frame.image)

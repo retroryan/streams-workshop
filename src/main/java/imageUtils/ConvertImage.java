@@ -3,6 +3,8 @@ package imageUtils;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorConvertOp;
+import java.awt.image.ColorModel;
 import java.net.MalformedURLException;
 
 public class ConvertImage {
@@ -19,8 +21,14 @@ public class ConvertImage {
                 inputImage.setRGB(x, y, col.getRGB());
             }
         }
-
         return inputImage;
+    }
+
+    public static BufferedImage grayscale(BufferedImage inputImage) {
+        final BufferedImage to = new BufferedImage(inputImage.getWidth(), inputImage.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+        Graphics2D g2d = to.createGraphics();
+        g2d.drawImage(inputImage, 0, 0, null);
+        return to;
     }
 
     public static BufferedImage addWaterMark(BufferedImage inputImage) throws MalformedURLException {

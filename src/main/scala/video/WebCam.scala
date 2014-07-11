@@ -32,6 +32,7 @@ private[video] class WebCamProducer(cam: WC) extends ActorProducer[Frame] {
     case ActorProducer.Request(elements) => 
       while(totalDemand > 0) onNext(snap())
     case ActorProducer.Cancel => cam.close()
+        context stop self
   }
   
   // Grab a webcam snapshot.

@@ -1,5 +1,9 @@
 package sample.stream
 
+import java.awt._
+import java.awt.geom.Rectangle2D
+import java.awt.image.BufferedImage
+
 import scala.concurrent.duration._
 import akka.actor.ActorSystem
 import akka.stream.FlowMaterializer
@@ -26,6 +30,8 @@ import akka.actor.ActorRef
 
 object VideoPlayer {
 
+
+
   /**
    * Use parameters `server 0.0.0.0 6001` to start server listening on port 6001.
    */
@@ -45,17 +51,41 @@ object VideoPlayer {
     val playEngineConsumer = ActorConsumer[UIControl](playEngineActor)
     val playEngineProducer = ActorProducer[Frame](playEngineActor)
     uiControls produceTo playEngineConsumer
+    var frameCount = 0L
     Flow(playEngineProducer).map { frame =>
       // TODO - We use a mutable write here because we're optimising memory usage in
       // this flow.
-      overlay.overlayOnto((frame.image))
-      frame
+      overlay.overlayOnto((frame.image)); frame
+      //frame.copy(image = overlay.overlay(frame.image))
+      //frame.copy(image = ConvertImage.grayscale(frame.image))
     }.map { frame =>
-      Frame(ConvertImage.addWaterMark(frame.image), frame.timeStamp, frame.timeUnit)
+      frameCount += 1
+
+      Frame(addWaterMark(frame.image, frameCount), frame.timeStamp, frame.timeUnit)
     }.produceTo(materializer, player)
     //playEngineProducer produceTo player
 
     ()
+  }
+
+  def addWaterMark(inputImage: BufferedImage, frameCount: Long): BufferedImage = {
+    val g2d: Graphics2D = inputImage.createGraphics
+    val alpha: AlphaComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.8f)
+
+    val slowDown = 10.0
+    val xMax = ((math.cos(frameCount/slowDown)+1)/2.0 * inputImage.getWidth).toInt
+    val yMax = ((math.sin(frameCount/slowDown)+1)/2.0 * inputImage.getHeight).toInt
+
+    g2d.setComposite(alpha)
+    g2d.setColor(Color.white)
+    g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON)
+    g2d.setFont(new Font("Arial", Font.BOLD, 30))
+    val watermark: String = "Copyright Typesafe © 2014"
+    val fontMetrics: FontMetrics = g2d.getFontMetrics
+    val rect: Rectangle2D = fontMetrics.getStringBounds(watermark, g2d)
+    g2d.drawString(watermark, inputImage.getWidth - (rect.getWidth.asInstanceOf[Int] + xMax), inputImage.getHeight - (rect.getHeight.asInstanceOf[Int] + yMax))
+    g2d.dispose
+    return inputImage
   }
 }
 

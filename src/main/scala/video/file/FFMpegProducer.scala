@@ -36,7 +36,9 @@ private[video] class FFMpegProducer(file: File) extends ActorProducer[Frame] {
   /** Our actual behavior. */
   override def receive: Receive = {
     case ActorProducer.Request(elements) => read(elements)
-    case ActorProducer.Cancel => reader.close()
+    case ActorProducer.Cancel =>
+      reader.close()
+      context stop self
   }
   
   // Reads the given number of frames, or bails on error.
