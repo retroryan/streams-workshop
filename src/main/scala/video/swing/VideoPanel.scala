@@ -41,6 +41,7 @@ private[swing] class VideoPanelActor(panel: VideoPanel) extends ActorConsumer {
   override val requestStrategy = ActorConsumer.OneByOneRequestStrategy
   private var last = System.nanoTime()
   private var lastTick = 0L
+
   def receive: Receive = {
     case ActorConsumer.OnNext(frame: Frame) =>
       // Here is some gunk to slow down rendering to the appropriate frame rate.

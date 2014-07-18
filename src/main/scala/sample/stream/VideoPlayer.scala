@@ -46,7 +46,7 @@ object VideoPlayer {
     val (player, uiControls) = video.Display.createPlayer(system)
     
     // EXERCISE - Show this to user in terms of flow, have diagrams
-    val file = new File(args(0))
+    val file = new File("goose.mp4")
     val playEngineActor = system.actorOf(Props(new PlayerProcessorActor(file)))
     val playEngineConsumer = ActorConsumer[UIControl](playEngineActor)
     val playEngineProducer = ActorProducer[Frame](playEngineActor)
@@ -97,7 +97,7 @@ case object PlayerDone
  *  
  *  This player 
  */
-class PlayerProcessorActor(file: File) extends ActorProducer[Frame] with ActorConsumer {
+class PlayerProcessorActor(file: File) extends ActorProducer[Frame] with ActorConsumer /*[UIControl]*/ {
   // Ensure that we only ask for UI events one at a time.
   override val requestStrategy = ActorConsumer.OneByOneRequestStrategy
   // Private data, holding which actor is currently acting as a Consumer[Frame] for us.

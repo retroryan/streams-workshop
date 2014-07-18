@@ -48,7 +48,7 @@ object VideoDump {
     //         Use video.ScreenCapture.readScreenCapture for grabbing screenshots.
     //         Look into akka.stream.scaladsl.Flow API for something which allows
     //          joinging mutliple consumers.
-    val producer: Producer[Frame] = ScreenCapture.readScreenCapture(maxFrameCount = 100, system)
+    val producer: Producer[Frame] = ScreenCapture.readScreenCapture(system)
     //val producer: Producer[Frame] = WebCam.default(system)
     val fileConsumer: Consumer[Frame] = video.FFMpeg.writeFile(new File("test.mp4"), system, 640, 480)
     val displayConsumer: Consumer[Frame] = video.Display.create(system)

@@ -15,9 +15,8 @@ object FrameCount {
   def main(args: Array[String]): Unit = {
     FlowAction.action {
       (materializer, system) =>
-        val fileProducer: Producer[Frame] = video.FFMpeg.readFile(new File(args(0)), system)
-        var count = 0L
-        Flow(fileProducer).fold(0) { (count, frame) =>
+        val videoStream: Producer[Frame] = video.FFMpeg.readFile(new File("goose.mp4"), system)
+        Flow(videoStream).fold(0) { (count, frame) =>
           val nextCount = count + 1
           System.out.print(f"\rFRAME ${nextCount}%05d")
           nextCount
