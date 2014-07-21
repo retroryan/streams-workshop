@@ -34,7 +34,7 @@ object CircleProducer {
     // ActorSystem represents the "engine" we run in, including threading configuration and concurrency semantics.
     val system = ActorSystem()
 
-    // Fill in the code necessary to construct a UI display and consume the Frames produced
+    // Fill in the code necessary to construct a UI to consume and display the Frames produced
     // by the Circle producer.
 
     // TODO - Your code here.
