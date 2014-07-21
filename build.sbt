@@ -14,3 +14,10 @@ libraryDependencies ++= Seq(
 )
 
 resolvers += "xuggler-repo" at "http://xuggle.googlecode.com/svn/trunk/repo/share/java"
+
+
+// Add src/library and src/exercises into the soruce directories we use when compiling.
+unmanagedSourceDirectories in Compile ++= {
+  val base = sourceDirectory.value
+  Seq(base / "exercises", base / "library", base / "examples")
+}
