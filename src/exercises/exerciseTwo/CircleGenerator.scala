@@ -1,7 +1,7 @@
-package exerciseOne
+package exerciseTwo
 
 // ------------
-// EXERCISE 1.3
+// EXERCISE 2.1
 // ------------
 // Fill in the code necessary to handle receiving a new message to generate the
 // properties for a random circle.  For testing just println when the message is received.

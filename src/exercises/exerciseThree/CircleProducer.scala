@@ -1,11 +1,11 @@
-package exerciseOne
+package exerciseThree
 
 import video.Frame
 import akka.stream.actor.ActorProducer
 import akka.actor.ActorSystem
 
 // ------------
-// EXERCISE 1.4
+// EXERCISE 3.1
 // ------------
 // Fill in the code necessary to produce random circles based on the requested demand.
 // The properties of the circles should be retrieved from the the CircleGenerator actor
