@@ -3,12 +3,11 @@ package swing
 
 import java.util.concurrent.TimeUnit
 import javax.swing.JComponent
-import akka.stream.actor.ActorConsumer
 import java.awt.Color
 import java.awt.Graphics
 import org.reactivestreams.api.Consumer
-import akka.actor.ActorRefFactory
-import akka.actor.Props
+import akka.actor.{ActorRef, ActorRefFactory, Props}
+import stream.actor.ActorConsumer
 
 /**
  * A video panel which can consume Frame elements and display them in the UI
@@ -76,11 +75,11 @@ private[swing] class VideoPanelActor(panel: VideoPanel) extends ActorConsumer {
 object VideoPanel  {
   private def props(panel: VideoPanel): Props = Props(new VideoPanelActor(panel))
   /** Construct a video panel which consumes frames and renders them on the swing component. */
-  def apply(factory: ActorRefFactory): (Consumer[Frame], JComponent) = {
+  def apply(factory: ActorRefFactory): (Consumer[Frame], JComponent, ActorRef) = {
     // TODO - this is horribly wrong for error handling, but the alternative is more annoying and
     // much harder to implement (rewiring actors to physical swing controls when restarted).
     val panel = new VideoPanel()
     val actorRef = factory.actorOf(props(panel).withDispatcher("swing-dispatcher"), "video-panel")
-    ActorConsumer(actorRef) -> panel
+    (ActorConsumer[Frame](actorRef), panel, actorRef)
   }
 }
