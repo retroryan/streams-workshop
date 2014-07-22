@@ -10,7 +10,7 @@ import com.xuggle.mediatool.IMediaWriter
 import java.util.concurrent.TimeUnit
 import com.xuggle.xuggler.IRational
 import akka.actor.ActorRefFactory
-import akka.stream.actor.ActorConsumer
+import stream.actor.ActorConsumer
 
 
 

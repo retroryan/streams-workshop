@@ -1,10 +1,16 @@
 package sample.clustered
 
-import video.Frame
-import org.reactivestreams.api.Consumer
-import akka.actor.ActorPath
+import java.io.File
+import akka.actor.ActorRef
 
 object ClusteredMessages {
-  case object BackendRegistration
-  case class StartVideo(consumerActorName:String)
+
+  case class BackendRegistration(serverActorName:String)
+
+  case class OpenFile(fileName: String)
+
+  case class VideoFileActor(ref: ActorRef)
+
+  case class StartVideo(consumerActorName: String)
+
 }

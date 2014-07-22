@@ -7,7 +7,7 @@ import java.awt.Color
 import java.awt.Graphics
 import org.reactivestreams.api.Consumer
 import akka.actor.{ActorRef, ActorRefFactory, Props}
-import akka.stream.actor.ActorConsumer
+import stream.actor.ActorConsumer
 
 /**
  * A video panel which can consume Frame elements and display them in the UI
@@ -37,7 +37,7 @@ private[swing] class VideoPanel extends JComponent {
     }
 }
 private[swing] class VideoPanelActor(panel: VideoPanel) extends ActorConsumer {
-  override val requestStrategy = ActorConsumer.OneByOneRequestStrategy
+  override val requestStrategy = ActorConsumer.WatermarkRequestStrategy(10,2)
   private var last = System.nanoTime()
   private var lastTick = 0L
 

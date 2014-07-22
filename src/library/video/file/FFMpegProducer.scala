@@ -9,9 +9,7 @@ import com.xuggle.mediatool.event.IVideoPictureEvent
 import com.xuggle.xuggler.Utils
 import com.xuggle.xuggler.IError
 import org.reactivestreams.api.Producer
-import akka.actor.ActorRefFactory
-import akka.actor.Props
-
+import akka.actor.{ActorRef, ActorRefFactory, Props}
 import stream.actor.ActorProducer
 
 
@@ -64,7 +62,10 @@ private[video] class FFMpegProducer(file: File) extends ActorProducer[Frame] {
   }
 }
 object FFMpegProducer {
+
+  def make(factory: ActorRefFactory, file: File): ActorRef =
+    factory.actorOf(Props(new FFMpegProducer(file)))
   
   def apply(factory: ActorRefFactory, file: File): Producer[Frame] = 
-    ActorProducer(factory.actorOf(Props(new FFMpegProducer(file))))
+    ActorProducer(make(factory, file))
 }

@@ -4,7 +4,7 @@ package exerciseFive
 import java.io.File
 
 import akka.actor.{Props, ActorSystem}
-import akka.stream.actor.{ActorProducer, ActorConsumer}
+import akka.stream.actor.ActorProducer
 import akka.stream.scaladsl.Flow
 import akka.stream.{FlowMaterializer, MaterializerSettings}
 import org.reactivestreams.api.{Consumer, Producer}
