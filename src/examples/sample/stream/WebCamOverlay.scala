@@ -1,5 +1,4 @@
-package sample
-package stream
+package sample.stream
 
 import java.io.File
 
@@ -10,6 +9,12 @@ import video.imageUtils.ImageOverlay
 
 
 object WebcamOverlay {
+
+  /**
+   * run:
+   *    ./activator 'runMain sample.stream.WebcamOverlay'
+   *
+   */
   def main(args: Array[String]): Unit = {
     implicit val system = ActorSystem()
     implicit val materializer = FlowMaterializer(MaterializerSettings())

@@ -7,6 +7,11 @@ import org.reactivestreams.api.{Consumer, Producer}
 
 object DisplayMp4 {
 
+  /**
+   * run:
+   *    ./activator 'runMain exerciseOne.DisplayMp4'
+   *
+   */
   def main(args: Array[String]): Unit = {
     // ActorSystem represents the "engine" we run in, including threading configuration and concurrency semantics.
     val system = ActorSystem()

@@ -10,8 +10,8 @@ import akka.stream.scaladsl.Flow
 object ManipulateVideo {
 
   /**
-   * use:
-   * sbt 'runMain sample.stream.ShowVideo file.mp4'
+   * run:
+   *   ./activator 'runMain sample.stream.ManipulateVideo goose.mp4'
    *
    */
   def main(args: Array[String]): Unit = {

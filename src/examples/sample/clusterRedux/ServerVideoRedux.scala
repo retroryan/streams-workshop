@@ -21,8 +21,6 @@ class ServerVideoRedux extends Actor {
 
   val cluster = Cluster(context.system)
 
-
-
   // subscribe to cluster changes, MemberUp
   // re-subscribe when restart
   override def preStart(): Unit = cluster.subscribe(self, classOf[MemberUp])
@@ -55,7 +53,11 @@ class ServerVideoRedux extends Actor {
 }
 
 //#backend
-
+/**
+ *
+ * run:
+ *      ./activator -Dconfig.resource=clustering.conf 'runMain sample.clusterRedux.ServerVideoRedux 2551'
+ */
 object ServerVideoRedux {
   def main(args: Array[String]): Unit = {
     // Override the configuration of the port when specified as program argument

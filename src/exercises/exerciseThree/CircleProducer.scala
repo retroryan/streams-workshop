@@ -30,6 +30,11 @@ class CircleProducer extends ActorProducer[Frame] {
 
 object CircleProducer {
 
+  /**
+   * run:
+   *   ./activator 'runMain exerciseThree.CircleProducer'
+   *
+   */
   def main(args: Array[String]): Unit = {
     // ActorSystem represents the "engine" we run in, including threading configuration and concurrency semantics.
     val system = ActorSystem()

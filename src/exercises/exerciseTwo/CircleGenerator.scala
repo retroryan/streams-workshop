@@ -16,6 +16,11 @@ class CircleGenerator extends akka.actor.Actor {
 
 object CircleGenerator {
 
+  /**
+   * run:
+   * ./activator 'runMain exerciseTwo.CircleGenerator'
+   *
+   */
   def main(args: Array[String]): Unit = {
     // ActorSystem represents the "engine" we run in, including threading configuration and concurrency semantics.
     val system = ActorSystem()

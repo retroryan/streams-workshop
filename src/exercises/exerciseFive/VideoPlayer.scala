@@ -12,8 +12,12 @@ import video.{Frame, UIControl}
 
 
 object VideoPlayer {
+
+
   /**
-   * Use parameters `server 0.0.0.0 6001` to start server listening on port 6001.
+   * run:
+   *   ./activator 'runMain exerciseFive.VideoPlayer'
+   *
    */
   def main(args: Array[String]): Unit = {
     implicit val system = ActorSystem("video-player")

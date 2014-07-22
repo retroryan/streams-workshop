@@ -10,8 +10,8 @@ import akka.stream.scaladsl.Flow
 object FrameCount {
 
   /**
-   * Use:
-   * sbt 'runMain sample.stream.FrameCount file.mp4'
+   * run:
+   *    ./activator 'runMain sample.stream.FrameCount file.mp4'
    *
    */
   def main(args: Array[String]): Unit = {

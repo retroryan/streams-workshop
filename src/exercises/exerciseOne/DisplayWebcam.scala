@@ -7,6 +7,11 @@ import video.Frame
 
 object DisplayWebcam {
 
+  /**
+   * run:
+   *    ./activator 'runMain exerciseOne.DisplayWebcam'
+   *
+   */
   def main(args: Array[String]): Unit = {
     // ActorSystem represents the "engine" we run in, including threading configuration and concurrency semantics.
     val system = ActorSystem()

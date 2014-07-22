@@ -44,7 +44,11 @@ class ClientVideoRedux extends Actor {
 }
 
 //#frontend
-
+/**
+ *
+ * run:
+ *    ./activator -Dconfig.resource=clustering.conf 'runMain sample.clusterRedux.ClientVideoRedux 2552'
+ */
 object ClientVideoRedux {
   def main(args: Array[String]): Unit = {
     // Override the configuration of the port when specified as program argument

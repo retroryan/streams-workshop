@@ -65,6 +65,12 @@ class ServerProduceVideo extends Actor {
 //#backend
 
 object ServerProduceVideo {
+
+  /**
+   *
+   * run:
+   *      ./activator -Dconfig.resource=clustering.conf 'runMain sample.clustered.ServerProduceVideo 2551'
+   */
   def main(args: Array[String]): Unit = {
     // Override the configuration of the port when specified as program argument
     val port = if (args.isEmpty) "0" else args(0)
