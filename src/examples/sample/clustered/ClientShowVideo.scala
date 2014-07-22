@@ -20,16 +20,12 @@ class ClientShowVideo extends Actor {
 
   var backends = IndexedSeq.empty[ActorRef]
 
-
   def receive = {
-
 
     case BackendRegistration if !backends.contains(sender()) =>
       context watch sender()
       backends = backends :+ sender()
-      println(s"recieved backend registration message - sending a start video")
-      val (consumer, consumerActorRef) = video.Display.createActorRef(context.system)
-      println(s"consumerActorRef: = ${consumerActorRef.path.name}  and address: ${consumerActorRef.path.address}")
+      val consumerActorRef = video.Display.createActorRef(context.system)
       sender() ! StartVideo(consumerActorRef.path.name)
 
     case Terminated(a) =>

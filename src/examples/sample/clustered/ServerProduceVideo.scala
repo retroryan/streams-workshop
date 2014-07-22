@@ -36,10 +36,7 @@ class ServerProduceVideo extends Actor {
   def receive = {
     case StartVideo(consumerActorName) =>
       val clientAddress: Address = sender().path.address
-      println(s"sender address ${clientAddress}")
-      println(s"received a start video - producing to consumer $consumerActorName")
       val consumerPath: ActorPath = pathFor(clientAddress, consumerActorName)
-      println(s"consumer path: $consumerPath")
       val consumerSelection: ActorSelection = context.actorSelection(consumerPath)
       consumerSelection ! Identify("1")
 

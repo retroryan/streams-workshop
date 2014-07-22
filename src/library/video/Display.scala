@@ -31,20 +31,25 @@ class VideoPlayerDisplay(display: JComponent, controls: JComponent, width: Int, 
 object Display {
 
   def create(system: ActorSystem): Consumer[Frame] = {
-    val (consumer: Consumer[Frame], consumerActorRef: ActorRef) = createActorRef(system)
+    val (consumer, display) = swing.VideoPanel(system)
+    createFrame(system, display)
     consumer
   }
 
-  def createActorRef(system: ActorSystem): (Consumer[Frame], ActorRef) = {
-    val (consumer, display, consumerActorRef) = swing.VideoPanel(system)
+  def createActorRef(system: ActorSystem): ActorRef = {
+    val (consumerActorRef, display ) = swing.VideoPanel.make(system)
+    createFrame(system, display)
+    consumerActorRef
+  }
+
+  def createFrame(system: ActorSystem, display: JComponent) {
     val width = DisplayProperties.getWidth(system)
     val height = DisplayProperties.getHeight(system)
     val frame = inFrame("Video Preview", display, system, width, height)
-    consumer -> consumerActorRef
   }
 
   def createPlayer(system: ActorSystem): (Consumer[Frame], Producer[UIControl]) = {
-    val (consumer, display, consumerActorRef) = swing.VideoPanel(system)
+    val (consumer, display) = swing.VideoPanel(system)
     val (producer, controls) = swing.PlayerControls(system)
 
     val width = DisplayProperties.getWidth(system)
@@ -53,6 +58,7 @@ object Display {
     inFrame("Video Player", player, system, width, height)
     consumer -> producer
   }
+
 
   private def inFrame[T](title: String, c: Component, system: ActorSystem, width: Int, height: Int): JFrame = {
     val jframe = new JFrame(title)
