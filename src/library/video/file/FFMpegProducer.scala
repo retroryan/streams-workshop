@@ -1,7 +1,6 @@
 package video
 package file
 
-import akka.stream.actor.ActorProducer
 import java.io.File
 import com.xuggle.mediatool.ToolFactory
 import com.xuggle.mediatool.MediaListenerAdapter
@@ -12,7 +11,8 @@ import com.xuggle.xuggler.IError
 import org.reactivestreams.api.Producer
 import akka.actor.ActorRefFactory
 import akka.actor.Props
-import akka.stream.scaladsl.Flow
+
+import stream.actor.ActorProducer
 
 
 case class FFMpegError(raw: IError) extends Exception(raw.getDescription)

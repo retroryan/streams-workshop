@@ -1,23 +1,26 @@
 package video
 
 import org.reactivestreams.api.{
-  Producer,
-  Consumer
+Producer,
+Consumer
 }
 import javax.swing.{JComponent, JPanel, JFrame}
-import akka.actor.ActorSystem
-import java.awt.{BorderLayout, Component, GridLayout, Dimension }
+import akka.actor.{ActorRef, ActorSystem}
+import java.awt.{BorderLayout, Component, GridLayout, Dimension}
 import java.awt.event.{WindowAdapter, WindowEvent}
 
 
 sealed trait UIControl
+
 case object Play extends UIControl
+
 case object Pause extends UIControl
+
 case object Stop extends UIControl
 
 
 /** Widget which wraps another component, and exposes play/pause/stop buttons. */
-class VideoPlayerDisplay(display: JComponent, controls: JComponent, width:Int, height:Int) extends JPanel {
+class VideoPlayerDisplay(display: JComponent, controls: JComponent, width: Int, height: Int) extends JPanel {
   setLayout(new BorderLayout)
   add(display, BorderLayout.CENTER)
   //add(new JLabel("Video Player"), BorderLayout.CENTER)
@@ -26,13 +29,25 @@ class VideoPlayerDisplay(display: JComponent, controls: JComponent, width:Int, h
 }
 
 object Display {
+
   def create(system: ActorSystem): Consumer[Frame] = {
     val (consumer, display) = swing.VideoPanel(system)
+    createFrame(system, display)
+    consumer
+  }
+
+  def createActorRef(system: ActorSystem): ActorRef = {
+    val (consumerActorRef, display ) = swing.VideoPanel.make(system)
+    createFrame(system, display)
+    consumerActorRef
+  }
+
+  def createFrame(system: ActorSystem, display: JComponent) {
     val width = DisplayProperties.getWidth(system)
     val height = DisplayProperties.getHeight(system)
     val frame = inFrame("Video Preview", display, system, width, height)
-    consumer
   }
+
   def createPlayer(system: ActorSystem): (Consumer[Frame], Producer[UIControl]) = {
     val (consumer, display) = swing.VideoPanel(system)
     val (producer, controls) = swing.PlayerControls(system)
@@ -44,7 +59,8 @@ object Display {
     consumer -> producer
   }
 
-  private def inFrame[T](title: String, c: Component, system: ActorSystem, width:Int, height:Int): JFrame = {
+
+  private def inFrame[T](title: String, c: Component, system: ActorSystem, width: Int, height: Int): JFrame = {
     val jframe = new JFrame(title)
     jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
     val pane = jframe.getContentPane
