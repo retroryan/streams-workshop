@@ -2,16 +2,9 @@ package sample.clustered
 
 
 import language.postfixOps
-import scala.concurrent.duration._
 import akka.actor._
-import akka.pattern.ask
-import akka.util.Timeout
 import com.typesafe.config.ConfigFactory
-import java.util.concurrent.atomic.AtomicInteger
-import sample.clustered.ClusteredMessages.{StartVideo, BackendRegistration}
-import org.reactivestreams.api.Consumer
-import video.Frame
-import org.reactivestreams.spi.Subscriber
+import sample.clustered.ClusteredMessages.BackendRegistration
 import akka.actor.Terminated
 import sample.clustered.ClusteredMessages.StartVideo
 

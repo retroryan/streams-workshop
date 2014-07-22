@@ -15,7 +15,7 @@ import akka.cluster.ClusterEvent.CurrentClusterState
 import akka.cluster.ClusterEvent.MemberUp
 import video.Frame
 import sample.clustered.ClusteredMessages.StartVideo
-import stream.actor.ActorConsumer
+import akka.stream.actor.ActorConsumer
 
 //#backend
 class ServerProduceVideo extends Actor {
@@ -42,7 +42,7 @@ class ServerProduceVideo extends Actor {
 
     case ActorIdentity(correlationId, optConsumerActorRef) =>
       optConsumerActorRef.foreach {
-         consumerActorRef =>
+        consumerActorRef =>
           println(s"received consumerActorRef = ${consumerActorRef} and path: ${consumerActorRef.path}")
           val fileProducer: Producer[Frame] = video.FFMpeg.readFile(mp4, context.system)
           val consumer = ActorConsumer[Frame](consumerActorRef)

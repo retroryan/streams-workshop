@@ -7,7 +7,7 @@ import java.awt.Color
 import java.awt.Graphics
 import org.reactivestreams.api.Consumer
 import akka.actor.{ActorRef, ActorRefFactory, Props}
-import stream.actor.ActorConsumer
+import akka.stream.actor.ActorConsumer
 
 /**
  * A video panel which can consume Frame elements and display them in the UI
