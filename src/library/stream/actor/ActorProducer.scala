@@ -1,5 +1,12 @@
 /**
  * Copyright (C) 2014 Typesafe Inc. <http://www.typesafe.com>
+ *
+ *   This is copied from the akka stream source at:
+ *   https://github.com/akka/akka/tree/releasing-akka-stream-and-http-experimental-0.4
+ *
+ *   This was copied to get the Actor Producer to work with clustering.
+ *
+ *   The only change needed was to modify the class ActorProducerSubscription so that it extends serializable.
  */
 package stream.actor
 
