@@ -22,7 +22,8 @@ object ManipulateVideo {
     // EXERCISE 4.2
     // ------------
     // Fill in the code necessary to create a flow dsl from a screen capture and then add a a transform
-    // that adds movement to the stream.
+    // that will show the movement within the video, rather than the raw picture.
+    // Hint:  Use the video.frameUtil.diff method to difference two video frames.
 
     // TODO - Your code here to consume and manipulate the video stream in a flow dsl.
 

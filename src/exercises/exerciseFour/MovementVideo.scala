@@ -21,7 +21,7 @@ object MovementVideo {
     // ------------
     // EXERCISE 4.1
     // ------------
-    // Fill in the code necessary to create a flow dsl and manipulate the video stream to add a gray scale.
+    // Fill in the code necessary to create a flow dsl and manipulate the video stream to be grayscale.
 
     // Given - The location of the mp4 we can display (note first few seconds are still frame).
     val mp4 = new File("goose.mp4")

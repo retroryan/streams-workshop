@@ -1,7 +1,12 @@
+import java.awt.Color
+import java.awt.image.BufferedImage
 import java.io.File
 
 import akka.actor.{ActorSystem, ActorRefFactory}
 import org.reactivestreams.api.{Consumer, Producer}
+import video.imageUtils.ImageUtils
+
+import scala.collection.immutable
 
 /**
  * Helper methods for reactive streams workshop.
@@ -54,5 +59,23 @@ package object video {
    * @return  A stream of screen captures.
    */
   def screen(system: ActorRefFactory) = ScreenCapture.readScreenCapture(system)
+
+
+  /** Convenience methods for manipulating video frames. */
+  object frameUtil {
+    /** Converts the frame to a grayscale frame. */
+    def grayscale(frame: Frame): Frame =
+      frame.copy(image = ConvertImage.grayscale(frame.image))
+
+    /** Creates a frame that XORs the colors of the two frames. */
+    def diff(left: Frame, right: Frame): Frame = {
+      val image = new BufferedImage(left.image.getWidth, left.image.getHeight, BufferedImage.TYPE_3BYTE_BGR)
+      val g = image.createGraphics()
+      g.drawImage(left.image, 0, 0, null)
+      g.setXORMode(Color.WHITE)
+      g.drawImage(right.image, 0, 0, null)
+      left.copy(image = image)
+    }
+  }
 
 }

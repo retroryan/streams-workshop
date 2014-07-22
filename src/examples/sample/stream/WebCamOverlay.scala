@@ -9,7 +9,7 @@ import akka.stream.{MaterializerSettings, FlowMaterializer}
 import video.imageUtils.ImageOverlay
 
 
-object Webcam {
+object WebcamOverlay {
   def main(args: Array[String]): Unit = {
     implicit val system = ActorSystem()
     implicit val materializer = FlowMaterializer(MaterializerSettings())
