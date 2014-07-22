@@ -48,7 +48,7 @@ object Display {
     val frame = inFrame("Video Preview", display, system, width, height)
   }
 
-  def createPlayer(system: ActorSystem): (Consumer[Frame], Producer[UIControl]) = {
+  def createPlayer(system: ActorSystem): (Producer[UIControl], Consumer[Frame]) = {
     val (consumer, display) = swing.VideoPanel(system)
     val (producer, controls) = swing.PlayerControls(system)
 
@@ -56,7 +56,7 @@ object Display {
     val height = DisplayProperties.getHeight(system)
     val player = new VideoPlayerDisplay(display, controls, width, height)
     inFrame("Video Player", player, system, width, height)
-    consumer -> producer
+    producer -> consumer
   }
 
 

@@ -18,6 +18,17 @@ package object video {
   def display(system: ActorSystem): Consumer[Frame] = Display.create(system)
 
 
+  /** Construct a swing UI with two pieces:
+    * 1. a  button panel which generates UIControl events, like Play/Pause/Stop
+    * 2. A video panel which can render a video stream.
+    *
+    * @param system  The actor system used to run the UI.
+    * @return  A tuple containing the Producer of UI events and the consumer of Frames.
+    */
+  def displayWithControl(system: ActorSystem): (Producer[UIControl], Consumer[Frame]) =
+    Display.createPlayer(system)
+
+
   /** Helper method which will read a movie file (mp4 or other FFMPeg supported) and produce a stream of just the
     * video frames.
     *
